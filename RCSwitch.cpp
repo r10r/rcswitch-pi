@@ -445,7 +445,6 @@ void RCSwitch::enableReceive() {
   if (this->nReceiverInterrupt != -1) {
     RCSwitch::nReceivedValue = NULL;
     RCSwitch::nReceivedBitlength = NULL;
-    attachInterrupt(this->nReceiverInterrupt, handleInterrupt, CHANGE);
   }
 }
 
@@ -453,7 +452,6 @@ void RCSwitch::enableReceive() {
  * Disable receiving data
  */
 void RCSwitch::disableReceive() {
-  detachInterrupt(this->nReceiverInterrupt);
   this->nReceiverInterrupt = -1;
 }
 
@@ -557,40 +555,6 @@ bool RCSwitch::receiveProtocol2(unsigned int changeCount){
 		return true;
 	}
 
-}
-void RCSwitch::handleInterrupt() {
-
-  static unsigned int duration;
-  static unsigned int changeCount;
-  static unsigned long lastTime;
-  static unsigned int repeatCount;
-  
-
-  long time = micros();
-  duration = time - lastTime;
- 
-  if (duration > 5000 && duration > RCSwitch::timings[0] - 200 && duration < RCSwitch::timings[0] + 200) {
-    repeatCount++;
-    changeCount--;
-    if (repeatCount == 2) {
-		if (receiveProtocol1(changeCount) == false){
-			if (receiveProtocol2(changeCount) == false){
-				//failed
-			}
-		}
-      repeatCount = 0;
-    }
-    changeCount = 0;
-  } else if (duration > 5000) {
-    changeCount = 0;
-  }
- 
-  if (changeCount >= RCSWITCH_MAX_CHANGES) {
-    changeCount = 0;
-    repeatCount = 0;
-  }
-  RCSwitch::timings[changeCount++] = duration;
-  lastTime = time;  
 }
 
 /**

@@ -30,16 +30,21 @@
 #else
     #include <wiringPi.h>
     #include <stdint.h>
-#endif
-
+    #define NULL 0
+    #define CHANGE 1
 #ifdef __cplusplus
 extern "C"{
 #endif
 typedef uint8_t boolean;
 typedef uint8_t byte;
+
+#if !defined(NULL)
+#endif
 #ifdef __cplusplus
 }
 #endif
+#endif
+
 
 // Number of maximum High/Low changes per packet.
 // We can handle up to (unsigned long) => 32 bit * 2 H/L changes per bit + 2 for sync

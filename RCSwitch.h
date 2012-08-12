@@ -28,7 +28,17 @@
 #if defined(ARDUINO) && ARDUINO >= 100
     #include "Arduino.h"
 #else
-    #include "WProgram.h"
+    #include <wiringPi.h>
+    #include <stdint.h>
+#endif
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+typedef uint8_t boolean;
+typedef uint8_t byte;
+#ifdef __cplusplus
+}
 #endif
 
 // Number of maximum High/Low changes per packet.

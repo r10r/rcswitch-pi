@@ -172,6 +172,27 @@ void RCSwitch::switchOff(char* sGroup, int nChannel) {
 }
 
 /**
+ * Switch a remote switch on (Type A with 10 pole DIP switches)
+ *
+ * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
+ * @param sDevice       Code of the switch device (refers to DIP switches 6..10 (A..E) where "1" = on and "0" = off, if all DIP switches are on it's "11111")
+ */
+void RCSwitch::switchOn(char* sGroup, char* sDevice) {
+	this->sendTriState( this->getCodeWordA(sGroup, sDevice, true) );
+}
+
+/**
+ * Switch a remote switch off (Type A with 10 pole DIP switches)
+ *
+ * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
+ * @param sDevice       Code of the switch device (refers to DIP switches 6..10 (A..E) where "1" = on and "0" = off, if all DIP switches are on it's "11111")
+ */
+void RCSwitch::switchOff(char* sGroup, char* sDevice) {
+	this->sendTriState( this->getCodeWordA(sGroup, sDevice, false) );
+}
+
+
+/**
  * Returns a char[13], representing the Code Word to be send.
  * A Code Word consists of 9 address bits, 3 data bits and one sync bit but in our case only the first 8 address bits and the last 2 data bits were used.
  * A Code Bit can have 4 different states: "F" (floating), "0" (low), "1" (high), "S" (synchronous bit)
@@ -257,6 +278,48 @@ char* RCSwitch::getCodeWordA(char* sGroup, int nChannelCode, boolean bStatus) {
 
   return sReturn;
 }
+/**
+ * Like getCodeWord (Type A)
+ *
+ * @param sGroup	String representing the dipswich setting for the group (switches 1-5)
+ * @param sDevice	String representing the dipswich setting for the device (switches A-E)
+ *					(any combinations are allowed -> 2^5 Devices, not only 5!)
+ *
+ */
+char* RCSwitch::getCodeWordA(char* sGroup, char* sDevice, boolean bOn) {
+	static char sDipSwitches[13];
+    int i = 0;
+	int j = 0;
+	
+	for (i=0; i < 5; i++) {
+		if (sGroup[i] == '0') {
+			sDipSwitches[j++] = 'F';
+		} else {
+			sDipSwitches[j++] = '0';
+		}
+	}
+
+	for (i=0; i < 5; i++) {
+		if (sDevice[i] == '0') {
+			sDipSwitches[j++] = 'F';
+		} else {
+			sDipSwitches[j++] = '0';
+		}
+	}
+
+	if ( bOn ) {
+		sDipSwitches[j++] = '0';
+		sDipSwitches[j++] = 'F';
+	} else {
+		sDipSwitches[j++] = 'F';
+		sDipSwitches[j++] = '0';
+	}
+
+	sDipSwitches[j] = '\0';
+
+	return sDipSwitches;
+}
+
 
 /**
  * Like getCodeWord (Type C = Intertechno)

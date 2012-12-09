@@ -6,6 +6,7 @@
   - Andre Koehler / info(at)tomate-online(dot)de
   - Gordeev Andrey Vladimirovich / gordeev(at)openpyro(dot)com
   - Skineffect / http://forum.ardumote.com/viewtopic.php?f=2&t=48
+  - Dominik Fischer / dom_fischer(at)web(dot)de
   
   Project home: http://code.google.com/p/rc-switch/
 

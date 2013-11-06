@@ -6,6 +6,7 @@
 #include "RCSwitch.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 int main(int argc, char *argv[]) {
     
@@ -26,9 +27,17 @@ int main(int argc, char *argv[]) {
     
     switch(command) {
         case 1:
+        	if(strlen(systemCode)==1) {
+        		mySwitch.switchOn(atoi(systemCode), unitCode);
+        		break;
+        	}
             mySwitch.switchOn(systemCode, unitCode);
             break;
         case 0:
+        	if(strlen(systemCode)==1) {
+        		mySwitch.switchOff(atoi(systemCode), unitCode);
+        		break;
+        	}
             mySwitch.switchOff(systemCode, unitCode);
             break;
         default:

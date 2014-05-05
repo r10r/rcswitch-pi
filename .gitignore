@@ -1,1 +1,7 @@
 *.o
+*~
+*.so
+*.cxx
+\#*
+rcswitch.py
+*.pyc

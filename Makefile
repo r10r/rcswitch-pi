@@ -1,4 +1,4 @@
-B1;2cCXXFLAGS=-O2 -fPIC
+CXXFLAGS=-O2 -fPIC
 
 call: send
 

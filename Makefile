@@ -16,3 +16,8 @@ send: RCSwitch.o send.o
 
 clean:
 	$(RM) *.o *.so *.pyc *.cxx send
+
+install:
+	mkdir -p /usr/lib/python2.7/dist-packages
+	cp rcswitch.py /usr/lib/python2.7/dist-packages
+	cp _rcswitch.so /usr/lib/python2.7/dist-packages

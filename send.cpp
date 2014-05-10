@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
      see https://projects.drogon.net/raspberry-pi/wiringpi/pins/
      for pin mapping of the raspberry pi GPIO connector
      */
-    int PIN = 0;
+    int PIN = 1;
     char* systemCode = argv[1];
     int unitCode = atoi(argv[2]);
     int command  = atoi(argv[3]);

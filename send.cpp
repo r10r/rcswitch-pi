@@ -16,6 +16,8 @@ void printUsage()
 	std::cout << "    e.g. sudo ./send 4 3 0\n";
 	std::cout << "         sudo ./send <familyCharacter> <groupNumber> <switchNumber> <command>\n";
 	std::cout << "    e.g. sudo ./send c 2 3 1\n";
+	std::cout << "         sudo ./send <dipSwitchGroup> <dipSwitchUnit> <command>\n";
+	std::cout << "    e.g. sudo ./send 11100 00001 1\n";
 	std::cout << "\n";
 	std::cout << "  Command is 0 for OFF and 1 for ON\n";
 	std::cout << "\n";
@@ -37,6 +39,7 @@ int main(int argc, char *argv[]) {
 	if(argc == 4)
 	{
 		char* sGroup = argv[1];
+		char* sSwitch = argv[2];
 		int nSwitchNumber = atoi(argv[2]);
 
 		int command  = atoi(argv[3]);
@@ -44,14 +47,22 @@ int main(int argc, char *argv[]) {
 		if(strlen(sGroup) > 2)
 		{
 			//Type A: 10 pole DIP switches
-			printf("sending [Type A] groupCode[%s] switchNumber[%i] command[%i]\n", sGroup, nSwitchNumber, command);
+			printf("sending [Type A] groupCode[%s] switchNumber[%s] command[%i]\n", sGroup, sSwitch, command);
 
 			switch(command) {
 				case 1:
-					mySwitch.switchOn(sGroup, nSwitchNumber);
+					if (strlen(sSwitch) > 2) {
+						mySwitch.switchOn(sGroup, sSwitch);
+					} else {
+						mySwitch.switchOn(sGroup, nSwitchNumber);
+					}
 					break;
 				case 0:
-					mySwitch.switchOff(sGroup, nSwitchNumber);
+					if (strlen(sSwitch) > 2) {
+						mySwitch.switchOff(sGroup, sSwitch);
+					} else {
+						mySwitch.switchOff(sGroup, nSwitchNumber);
+					}
 					break;
 				default:
 					printf("command[%i] is unsupported\n", command);

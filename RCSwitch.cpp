@@ -6,6 +6,7 @@
   - Andre Koehler / info(at)tomate-online(dot)de
   - Gordeev Andrey Vladimirovich / gordeev(at)openpyro(dot)com
   - Skineffect / http://forum.ardumote.com/viewtopic.php?f=2&t=48
+  - Dominik Fischer / dom_fischer(at)web(dot)de
   
   Project home: http://code.google.com/p/rc-switch/
 
@@ -172,6 +173,27 @@ void RCSwitch::switchOff(char* sGroup, int nChannel) {
 }
 
 /**
+ * Switch a remote switch on (Type A with 10 pole DIP switches)
+ *
+ * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
+ * @param sDevice       Code of the switch device (refers to DIP switches 6..10 (A..E) where "1" = on and "0" = off, if all DIP switches are on it's "11111")
+ */
+void RCSwitch::switchOn(char* sGroup, char* sDevice) {
+	this->sendTriState( this->getCodeWordA(sGroup, sDevice, true) );
+}
+
+/**
+ * Switch a remote switch off (Type A with 10 pole DIP switches)
+ *
+ * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
+ * @param sDevice       Code of the switch device (refers to DIP switches 6..10 (A..E) where "1" = on and "0" = off, if all DIP switches are on it's "11111")
+ */
+void RCSwitch::switchOff(char* sGroup, char* sDevice) {
+	this->sendTriState( this->getCodeWordA(sGroup, sDevice, false) );
+}
+
+
+/**
  * Returns a char[13], representing the Code Word to be send.
  * A Code Word consists of 9 address bits, 3 data bits and one sync bit but in our case only the first 8 address bits and the last 2 data bits were used.
  * A Code Bit can have 4 different states: "F" (floating), "0" (low), "1" (high), "S" (synchronous bit)
@@ -191,7 +213,7 @@ char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus
    int nReturnPos = 0;
    static char sReturn[13];
    
-   char* code[5] = { "FFFF", "0FFF", "F0FF", "FF0F", "FFF0" };
+   const char* code[5] = { "FFFF", "0FFF", "F0FF", "FF0F", "FFF0" };
    if (nAddressCode < 1 || nAddressCode > 4 || nChannelCode < 1 || nChannelCode > 4) {
     return '\0';
    }
@@ -226,7 +248,7 @@ char* RCSwitch::getCodeWordA(char* sGroup, int nChannelCode, boolean bStatus) {
    int nReturnPos = 0;
    static char sReturn[13];
 
-  char* code[6] = { "FFFFF", "0FFFF", "F0FFF", "FF0FF", "FFF0F", "FFFF0" };
+  const char* code[6] = { "FFFFF", "0FFFF", "F0FFF", "FF0FF", "FFF0F", "FFFF0" };
 
   if (nChannelCode < 1 || nChannelCode > 5) {
       return '\0';
@@ -236,7 +258,7 @@ char* RCSwitch::getCodeWordA(char* sGroup, int nChannelCode, boolean bStatus) {
     if (sGroup[i] == '0') {
       sReturn[nReturnPos++] = 'F';
     } else if (sGroup[i] == '1') {
-      sReturn[nReturnPos++] = '0';
+      sReturn[nReturnPos++] = '1';
     } else {
       return '\0';
     }
@@ -257,6 +279,48 @@ char* RCSwitch::getCodeWordA(char* sGroup, int nChannelCode, boolean bStatus) {
 
   return sReturn;
 }
+/**
+ * Like getCodeWord (Type A)
+ *
+ * @param sGroup	String representing the dipswich setting for the group (switches 1-5)
+ * @param sDevice	String representing the dipswich setting for the device (switches A-E)
+ *					(any combinations are allowed -> 2^5 Devices, not only 5!)
+ *
+ */
+char* RCSwitch::getCodeWordA(char* sGroup, char* sDevice, boolean bOn) {
+	static char sDipSwitches[13];
+    int i = 0;
+	int j = 0;
+	
+	for (i=0; i < 5; i++) {
+		if (sGroup[i] == '0') {
+			sDipSwitches[j++] = 'F';
+		} else {
+			sDipSwitches[j++] = '0';
+		}
+	}
+
+	for (i=0; i < 5; i++) {
+		if (sDevice[i] == '0') {
+			sDipSwitches[j++] = 'F';
+		} else {
+			sDipSwitches[j++] = '0';
+		}
+	}
+
+	if ( bOn ) {
+		sDipSwitches[j++] = '0';
+		sDipSwitches[j++] = 'F';
+	} else {
+		sDipSwitches[j++] = 'F';
+		sDipSwitches[j++] = '0';
+	}
+
+	sDipSwitches[j] = '\0';
+
+	return sDipSwitches;
+}
+
 
 /**
  * Like getCodeWord (Type C = Intertechno)

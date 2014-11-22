@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
     }
 
     
-    if (wiringPiSetupSys () == -1) {
+    if (wiringPiSetup () == -1) {
         printf("WiringPiSetup failed!\n");
         return 1;
     }

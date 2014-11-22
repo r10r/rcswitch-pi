@@ -48,14 +48,13 @@ int main(int argc, char *argv[]) {
 	RCSwitch mySwitch = RCSwitch();
 	mySwitch.enableTransmit(PIN);
 
-    if (strcmp(argv[0], "dip")) {
+    if (strcmp(argv[1], "dip") == 0) {
         char* systemCode = argv[2];
         int unitCode = atoi(argv[3]);
         int command  = atoi(argv[4]);
 
         printf("sending systemCode[%s] unitCode[%i] command[%i]\n", systemCode, unitCode, command);
 
-        mySwitch.setPulseLength(350);
         if (command == 1) {
             mySwitch.switchOn(systemCode, unitCode);
             return 0;
@@ -64,14 +63,13 @@ int main(int argc, char *argv[]) {
             return 0;
         }
 
-    } else if (strcmp(argv[0], "rev")) {
+    } else if (strcmp(argv[1], "rev") == 0) {
         char* channel = argv[2];
         int device = atoi(argv[3]);
         int command  = atoi(argv[4]);
 
         printf("sending channel[%c] device[%i] command[%i]\n", channel[0], device, command);
 
-        mySwitch.setPulseLength(360);
         if (command == 1) {
             mySwitch.switchOn(channel[0], device);
             return 0;

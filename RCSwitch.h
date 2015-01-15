@@ -30,7 +30,7 @@
 #else
     #include <wiringPi.h>
     #include <stdint.h>
-    #define NULL 0
+    #include <stddef.h>
     #define CHANGE 1
 #ifdef __cplusplus
 extern "C"{

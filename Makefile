@@ -1,6 +1,6 @@
 CXXFLAGS=-O2 -fPIC
 
-all: send
+all: send _rcswitch.so
 
 rcswitch_wrap.cxx: RCSwitch.h rcswitch.i
 	swig -c++ -python rcswitch.i

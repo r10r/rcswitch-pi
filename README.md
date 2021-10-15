@@ -1,3 +1,9 @@
+# NOTE
+
+This repository is currently unmaintained. I recommend you to use or switch to a maintained library instead.
+
+* https://github.com/sui77/rc-switch
+
 # About
 
 rcswitch-pi is for controlling rc remote controlled power sockets 

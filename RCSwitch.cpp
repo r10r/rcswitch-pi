@@ -109,6 +109,27 @@ void RCSwitch::disableTransmit() {
   this->nTransmitterPin = -1;
 }
 
+
+/**
+ * Switch a remote switch on (Type D REV)
+ *
+ * @param sGroup        Code of the switch group (A,B,C,D)
+ * @param nDevice       Number of the switch itself (1..3)
+ */
+void RCSwitch::switchOn(char sGroup, int nDevice) {
+  this->sendTriState( this->getCodeWordD(sGroup, nDevice, true) );
+}
+
+/**
+ * Switch a remote switch off (Type D REV)
+ *
+ * @param sGroup        Code of the switch group (A,B,C,D)
+ * @param nDevice       Number of the switch itself (1..3)
+ */
+void RCSwitch::switchOff(char sGroup, int nDevice) {
+  this->sendTriState( this->getCodeWordD(sGroup, nDevice, false) );
+}
+
 /**
  * Switch a remote switch on (Type C Intertechno)
  *
@@ -287,6 +308,90 @@ char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bSta
   }
   sReturn[nReturnPos] = '\0';
   return sReturn;
+}
+
+/**
+ * Decoding for the REV Switch Type
+ *
+ * Returns a char[13], representing the Tristate to be send.
+ * A Code Word consists of 7 address bits and 5 command data bits.
+ * A Code Bit can have 3 different states: "F" (floating), "0" (low), "1" (high)
+ *
+ * +-------------------------------+--------------------------------+-----------------------+
+ * | 4 bits address (switch group) | 3 bits address (device number) | 5 bits (command data) |
+ * | A=1FFF B=F1FF C=FF1F D=FFF1   | 1=0FFF 2=F0FF 3=FF0F 4=FFF0    | on=00010 off=00001    |
+ * +-------------------------------+--------------------------------+-----------------------+
+ *
+ * Source: http://www.the-intruder.net/funksteckdosen-von-rev-uber-arduino-ansteuern/
+ *
+ * @param sGroup        Name of the switch group (A..D, resp. a..d)
+ * @param nDevice       Number of the switch itself (1..3)
+ * @param bStatus       Wether to switch on (true) or off (false)
+ *
+ * @return char[13]
+ */
+
+char* RCSwitch::getCodeWordD(char sGroup, int nDevice, boolean bStatus){
+    static char sReturn[13];
+    int nReturnPos = 0;
+
+    // Building 4 bits address
+    // (Potential problem if dec2binWcharfill not returning correct string)
+    char *sGroupCode;
+    switch(sGroup){
+        case 'a':
+        case 'A':
+            sGroupCode = dec2binWcharfill(8, 4, 'F'); break;
+        case 'b':
+        case 'B':
+            sGroupCode = dec2binWcharfill(4, 4, 'F'); break;
+        case 'c':
+        case 'C':
+            sGroupCode = dec2binWcharfill(2, 4, 'F'); break;
+        case 'd':
+        case 'D':
+            sGroupCode = dec2binWcharfill(1, 4, 'F'); break;
+        default:
+            return '\0';
+    }
+   
+    for (int i = 0; i<4; i++)
+    {
+        sReturn[nReturnPos++] = sGroupCode[i];
+    }
+
+
+    // Building 3 bits address
+    // (Potential problem if dec2binWcharfill not returning correct string)
+    char *sDevice;
+    switch(nDevice) {
+        case 1:
+            sDevice = dec2binWcharfill(4, 3, 'F'); break;
+        case 2:
+            sDevice = dec2binWcharfill(2, 3, 'F'); break;
+        case 3:
+            sDevice = dec2binWcharfill(1, 3, 'F'); break;
+        default:
+            return '\0';
+    }
+
+    for (int i = 0; i<3; i++)
+        sReturn[nReturnPos++] = sDevice[i];
+
+    // fill up rest with zeros
+    for (int i = 0; i<5; i++)
+        sReturn[nReturnPos++] = '0';
+
+    // encode on or off
+    if (bStatus)
+        sReturn[10] = '1';
+    else
+        sReturn[11] = '1';
+
+    // last position terminate string
+    sReturn[12] = '\0';
+    return sReturn;
+
 }
 
 /**
@@ -561,11 +666,15 @@ bool RCSwitch::receiveProtocol2(unsigned int changeCount){
   * Turns a decimal value to its binary representation
   */
 char* RCSwitch::dec2binWzerofill(unsigned long Dec, unsigned int bitLength){
+  return dec2binWcharfill(Dec, bitLength, '0');
+}
+
+char* RCSwitch::dec2binWcharfill(unsigned long Dec, unsigned int bitLength, char fill){
   static char bin[64];
   unsigned int i=0;
 
   while (Dec > 0) {
-    bin[32+i++] = ((Dec & 1) > 0) ? '1' : '0';
+    bin[32+i++] = ((Dec & 1) > 0) ? '1' : fill;
     Dec = Dec >> 1;
   }
 
@@ -573,11 +682,10 @@ char* RCSwitch::dec2binWzerofill(unsigned long Dec, unsigned int bitLength){
     if (j >= bitLength - i) {
       bin[j] = bin[ 31 + i - (j - (bitLength - i)) ];
     }else {
-      bin[j] = '0';
+      bin[j] = fill;
     }
   }
   bin[bitLength] = '\0';
-  
+ 
   return bin;
 }
-
